@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductoController extends Controller
 {
@@ -68,6 +69,17 @@ class ProductoController extends Controller
         // Redirigir a la lista de productos
         return redirect()->route('productos.index')->with('success', 'Producto creado exitosamente');
     }
+
+        // Obtener todos los productos de un usuario específico
+        public function misProductos()
+        {
+            $userId = Auth::id(); // Obtener el ID del usuario autenticado
+            $productos = Producto::where('id_vendedor', $userId)->get(); // Productos del usuario
+        
+            return view('productos.mis_productos', compact('productos'));
+        }
+        
+
 
     // Mostrar el formulario para editar un producto
     public function edit($id)

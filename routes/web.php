@@ -1,4 +1,6 @@
+
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\VentaController;
@@ -10,10 +12,15 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ProfileController;
 
 Route::middleware('auth')->group(function () {
-    // Ruta para editar el perfil
+    // Rutas relacionadas al perfil de usuario
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-
-    Route::middleware('auth')->get('/dashboard', [ProductoController::class, 'comprar'])->name('dashboard');
+    Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
+    Route::delete('/profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    
+    // Ruta para el dashboard
+    Route::get('/dashboard', [ProductoController::class, 'comprar'])->name('dashboard');
 
     // Rutas de mensajes
     Route::get('/mensajes', [MensajeController::class, 'index'])->name('mensajes.index');
@@ -23,11 +30,12 @@ Route::middleware('auth')->group(function () {
 
     // Rutas de productos y ventas
     Route::get('productos/comprar', [ProductoController::class, 'comprar'])->name('productos.comprar');
-    Route::resource('ventas', VentaController::class);
-// Asegúrate de que la ruta esté correctamente definida
-Route::post('detalleVenta', [DetalleVentaController::class, 'storeDetalleVenta']);
-
+    Route::get('/productos/mis-productos', [ProductoController::class, 'misProductos'])->name('productos.mis_productos');
     Route::resource('productos', ProductoController::class);
+
+    Route::resource('ventas', VentaController::class);
+    Route::post('detalleVenta', [DetalleVentaController::class, 'storeDetalleVenta']);
+
     Route::resource('users', UserController::class);
 });
 
