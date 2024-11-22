@@ -15,6 +15,7 @@ Route::middleware('auth')->group(function () {
     // Rutas relacionadas al perfil de usuario
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+
     Route::put('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
     

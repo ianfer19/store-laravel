@@ -43,7 +43,7 @@
                 <i class="fas fa-comment-dots"></i> Mensajes
             </a>
             <!-- Enlace Perfil con ícono -->
-            <a class="nav-link text-white ms-3" href="/profile/update">
+            <a class="nav-link text-white ms-3" href="/profile/edit">
                 <i class="fas fa-user"></i> Perfil
             </a>
             <!-- Separador -->
