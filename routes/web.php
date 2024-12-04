@@ -50,3 +50,8 @@ Route::middleware('guest')->group(function () {
 
 // Ruta para logout
 Route::middleware('auth')->post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+// Capturar todas las rutas no definidas y redirigir a productos/comprar
+Route::fallback(function () {
+    return redirect()->route('productos.comprar');
+});
