@@ -38,6 +38,8 @@ Route::middleware('auth')->group(function () {
     Route::post('detalleVenta', [DetalleVentaController::class, 'storeDetalleVenta']);
 
     Route::resource('users', UserController::class);
+    Route::get('/dashboard', [VentaController::class, 'dashboard'])->name('dashboard')->middleware('auth');
+
 });
 
 // Rutas de autenticación (solo para usuarios no autenticados)

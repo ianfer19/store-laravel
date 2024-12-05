@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB; 
 
 class VentaController extends Controller
 {
@@ -142,4 +144,38 @@ class VentaController extends Controller
 
         return redirect()->route('ventas.index')->with('success', 'Venta eliminada con éxito');  // Redirigir a la lista de ventas
     }
+
+
+
+    public function dashboard()
+    {
+        $usuarioId = Auth::id();
+        
+        // Ventas donde el usuario es comprador
+        $ventasCompras = DB::table('venta')
+            ->selectRaw('YEAR(fecha_venta) as year, MONTH(fecha_venta) as month, SUM(total) as total_compras')
+            ->where('id_usuario', $usuarioId)
+            ->groupBy(DB::raw('YEAR(fecha_venta), MONTH(fecha_venta)'))
+            ->get();
+        
+        // Ventas donde el usuario es vendedor
+        $ventasVentas = DB::table('venta as v')
+            ->join('detalle_venta as d', 'v.id_venta', '=', 'd.id_venta')
+            ->join('productos as p', 'd.id_producto', '=', 'p.id_producto')  // Hacer JOIN con productos para obtener id_vendedor
+            ->selectRaw('YEAR(v.fecha_venta) as year, MONTH(v.fecha_venta) as month, SUM(v.total) as total_ventas')
+            ->where('p.id_vendedor', $usuarioId)  // Ahora se utiliza id_vendedor de la tabla productos
+            ->groupBy(DB::raw('YEAR(v.fecha_venta), MONTH(v.fecha_venta)'))
+            ->get();
+        
+        // Obtener los detalles de ventas (productos comprados y fecha de compra)
+        $detallesVentas = DB::table('venta as v')
+            ->join('detalle_venta as d', 'v.id_venta', '=', 'd.id_venta')
+            ->join('productos as p', 'd.id_producto', '=', 'p.id_producto')
+            ->select('v.fecha_venta', 'p.nombre as producto', 'd.cantidad', 'd.precio_unitario', 'd.subtotal')
+            ->where('v.id_usuario', $usuarioId)  // Solo ventas donde el usuario es comprador
+            ->get();
+    
+        return view('dashboard.index', compact('ventasCompras', 'ventasVentas', 'detallesVentas'));
+    }
+    
 }

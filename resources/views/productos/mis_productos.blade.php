@@ -1,10 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container mt-5">
     <h1>Mis Productos</h1>
     @if ($productos->isEmpty())
-        <p>No tienes productos registrados.</p>
+
+            <p>No tienes productos registrados.</p>
+
     @else
         <table class="table table-striped">
             <thead>
