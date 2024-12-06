@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -15,11 +14,9 @@ Route::middleware('auth')->group(function () {
     // Rutas relacionadas al perfil de usuario
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-
     Route::put('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile/delete', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
-    
+
     // Ruta para el dashboard
     Route::get('/dashboard', [ProductoController::class, 'comprar'])->name('dashboard');
 
@@ -34,12 +31,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/productos/mis-productos', [ProductoController::class, 'misProductos'])->name('productos.mis_productos');
     Route::resource('productos', ProductoController::class);
 
+    // Ruta específica para crear producto
+    Route::get('/productos/create', [ProductoController::class, 'create'])->name('productos.create');
+    Route::post('/productos', [ProductoController::class, 'store'])->name('productos.store');
+
+    // Ruta específica para editar producto
+    Route::get('/productos/{producto}/edit', [ProductoController::class, 'edit'])->name('productos.edit');
+    Route::patch('/productos/{producto}', [ProductoController::class, 'update'])->name('productos.update');
+
     Route::resource('ventas', VentaController::class);
     Route::post('detalleVenta', [DetalleVentaController::class, 'storeDetalleVenta']);
 
     Route::resource('users', UserController::class);
     Route::get('/dashboard', [VentaController::class, 'dashboard'])->name('dashboard')->middleware('auth');
-
 });
 
 // Rutas de autenticación (solo para usuarios no autenticados)

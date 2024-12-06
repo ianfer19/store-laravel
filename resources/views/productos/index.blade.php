@@ -11,6 +11,11 @@
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm border-primary h-100">
                 <div class="card-body d-flex flex-column">
+                   @if($producto->imagen)
+                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" style="width: 150px; height: auto;">
+                    @else
+                        <p>Sin imagen</p>
+                    @endif
                     <h5 class="card-title text-primary"><strong>{{ $producto->nombre }}</strong></h5>
                     <p class="card-text"><strong>Precio:</strong> ${{ number_format($producto->precio, 2) }}</p>
                     <p class="card-text"><strong>Cantidad Disponible:</strong> {{ $producto->cantidad_disponible }}</p>

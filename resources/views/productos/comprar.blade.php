@@ -9,7 +9,12 @@
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm border-primary h-100">
                 <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-primary"><strong>{{ $producto->nombre }}</strong></h5>
+                    @if($producto->imagen)
+                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" style="width: 150px; height: auto;">
+                    @else
+                        <p>Sin imagen</p>
+                    @endif
+                                    <h5 class="card-title text-primary"><strong>{{ $producto->nombre }}</strong></h5>
                     <p class="card-text"><strong>Descripción:</strong> {{ $producto->descripcion }}</p>
                     <p class="card-text"><strong>Precio:</strong> ${{ number_format($producto->precio, 2) }}</p>
                     <p class="card-text"><strong>Cantidad Disponible:</strong> {{ $producto->cantidad_disponible }}</p>
@@ -73,6 +78,8 @@
             <div class="modal-footer">
                 <button class="btn btn-danger" onclick="vaciarCarrito()">Vaciar Carrito</button>
                 <button class="btn btn-primary" onclick="realizarCompra()">Hacer Compra</button>
+                <button class="btn btn-success" onclick="realizarPagoNequi()">Pagar con Nequi</button>
+                
             </div>
         </div>
     </div>
@@ -176,14 +183,73 @@
     }
 
     function realizarCompra() {
+        if (carrito.length === 0) {
+            alert('El carrito está vacío.');
+            return;
+        }
+
+        const total = carrito.reduce((acc, item) => acc + item.cantidad * item.precio, 0);
+        if (isNaN(total) || total <= 0) {
+            alert('El total de la compra no es válido.');
+            return;
+        }
+
+        const data = {
+            total,
+            productos: carrito.map(item => ({
+                idProducto: item.idProducto,
+                cantidad: item.cantidad,
+                precio: item.precio
+            }))
+        };
+
+        fetch('/ventas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            const idVenta = data.id_venta;
+
+            const detallePromises = carrito.map(producto => {
+                return fetch('/detalleVenta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({
+                        id_venta: idVenta,
+                        id_producto: producto.idProducto,
+                        cantidad: producto.cantidad,
+                        precio_unitario: producto.precio,
+                    })
+                });
+            });
+
+            return Promise.all(detallePromises);
+        })
+        .then(() => {
+            alert('Compra realizada exitosamente.');
+            vaciarCarrito();
+        })
+        .catch(error => {
+            console.error('Error al procesar la compra:', error);
+            alert('Ocurrió un error al realizar la compra.');
+        });
+    }
+
+    function realizarPagoNequi() {
     if (carrito.length === 0) {
         alert('El carrito está vacío.');
         return;
     }
 
     const total = carrito.reduce((acc, item) => acc + item.cantidad * item.precio, 0);
-
-    // Verificar que el total sea un número válido
     if (isNaN(total) || total <= 0) {
         alert('El total de la compra no es válido.');
         return;
@@ -198,50 +264,26 @@
         }))
     };
 
-    console.log('Datos enviados al backend:', data);
-
-    fetch('/ventas', {
+    fetch('/nequi/payment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',  // Se utiliza el token CSRF directamente en el encabezado
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify(data),
     })
     .then(response => response.json())
     .then(data => {
-        // Obtener el id_venta desde la respuesta
-        const idVenta = data.id_venta;
-
-        console.log(idVenta)
-
-        // Recorrer los productos y crear los detalles de venta
-        carrito.forEach(producto => {
-            fetch('/detalleVenta', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': '{{ csrf_token() }}',  // Si es necesario en tu caso
-    },
-    body: JSON.stringify({
-        id_venta: idVenta,
-        id_producto: producto.idProducto,
-        cantidad: producto.cantidad,
-        precio_unitario: producto.precio,
-    })
-})
-.then(response => response.json())
-.then(data => {
-    console.log('Detalle de venta creado:', data);
-})
-.catch(error => {
-    console.error('Error al crear el detalle de venta:', error);
-});
-
-        });
+        if (data.success && data.paymentUrl) {
+            // Redirigir al usuario a la URL de pago de Nequi
+            window.location.href = data.paymentUrl;
+        } else {
+            alert('Error al generar el pago con Nequi.');
+        }
     })
     .catch(error => {
-        console.error('Error al crear la venta:', error);
+        console.error('Error al realizar el pago con Nequi:', error);
+        alert('Ocurrió un error al procesar el pago.');
     });
 }
 

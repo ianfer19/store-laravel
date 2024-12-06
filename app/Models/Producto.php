@@ -19,7 +19,8 @@ class Producto extends Model
         'precio',
         'cantidad_disponible',
         'id_vendedor',
-        'fecha_creacion'
+        'fecha_creacion',
+        'imagen',
     ];
 
     /**
