@@ -4,7 +4,8 @@
 <div class="container mt-5">
     <h1>Editar Producto</h1>
     
-    <form action="{{ route('productos.update', $producto->id_producto) }}" method="POST">
+    <!-- Agregar enctype para permitir la carga de archivos -->
+    <form action="{{ route('productos.update', $producto->id_producto) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 

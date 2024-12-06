@@ -56,7 +56,7 @@ class ProductoController extends Controller
             'descripcion' => 'required|string',
             'precio' => 'required|numeric',
             'cantidad_disponible' => 'required|integer',
-            'imagen' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:4048', // Validación de imagen
+            'imagen' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:4048',
         ]);
     
         // Manejo de la imagen
@@ -97,31 +97,46 @@ class ProductoController extends Controller
         return view('productos.edit', compact('producto')); // Enviar el producto a la vista de edición
     }
 
-    // Actualizar un producto
-    public function update(Request $request, $id)
+    public function update(Request $request, $id_producto)
     {
+        // Validación de los datos
         $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'precio' => 'required|numeric',
             'cantidad_disponible' => 'required|integer',
-            'imagen' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
+            'imagen' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:4048', // Validación de la imagen
         ]);
     
-        $producto = Producto::findOrFail($id);
+        // Obtener el producto por su ID
+        $producto = Producto::findOrFail($id_producto);
     
         // Manejo de la imagen
         if ($request->hasFile('imagen')) {
+            // Si hay una nueva imagen, eliminar la antigua
             if ($producto->imagen) {
-                Storage::disk('public')->delete($producto->imagen); // Eliminar la imagen anterior
+                Storage::disk('public')->delete($producto->imagen);
             }
-            $producto->imagen = $request->file('imagen')->store('imagenes_productos', 'public');
+            
+            // Subir la nueva imagen
+            $imagenPath = $request->file('imagen')->store('imagenes_productos', 'public');
+        } else {
+            // Mantener la imagen antigua si no se sube una nueva
+            $imagenPath = $producto->imagen;
         }
     
-        $producto->update($request->except('imagen') + ['imagen' => $producto->imagen]);
+        // Actualizar el producto
+        $producto->update([
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'precio' => $request->precio,
+            'cantidad_disponible' => $request->cantidad_disponible,
+            'imagen' => $imagenPath,  // Guardar la imagen (nueva o antigua)
+        ]);
     
         return redirect()->route('productos.mis_productos')->with('success', 'Producto actualizado exitosamente');
     }
+    
     
 
     // Eliminar un producto

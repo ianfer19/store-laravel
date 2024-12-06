@@ -21,6 +21,7 @@
     <table class="table table-bordered">
         <thead>
             <tr>
+              <th>Imagen</th>
                 <th>ID Producto</th>
                 <th>Nombre Producto</th>
                 <th>Cantidad</th>
@@ -32,10 +33,17 @@
         <tbody>
             @foreach($venta->detalles as $detalle)
                 <tr>
+                    <td>
+                        @if($detalle->producto->imagen)
+                            <img src="{{ asset('storage/' . $detalle->producto->imagen) }}" alt="{{ $detalle->producto->nombre }}" style="width: 100px; height: 100px; object-fit: cover;">
+                        @else
+                            <p>Sin imagen</p>
+                        @endif
+                    </td>
                     <td>{{ $detalle->id_producto }}</td>
                     <td>{{ $detalle->producto->nombre }}</td>
                     <td>{{ $detalle->cantidad }}</td>
-                    <td>{{ $detalle->producto->vendedor-> name }}</td>
+                    <td>{{ $detalle->producto->vendedor->name }}</td>
                     <td>${{ number_format($detalle->precio_unitario, 2) }}</td>
                     <td>${{ number_format($detalle->subtotal, 2) }}</td>
                 </tr>

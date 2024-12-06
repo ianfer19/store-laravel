@@ -2,24 +2,31 @@
 
 @section('content')
 <div class="container mt-5">
-    <h1 class="mb-4">Comprar Productos</h1>
+    <h1 class="mb-4 text-center">Comprar Productos</h1>
     
     <div class="row">
         @foreach ($productos as $producto)
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-primary h-100">
-                <div class="card-body d-flex flex-column">
+            <div class="card shadow-sm border-primary h-100 d-flex flex-column align-items-center">
+                <div class="card-body d-flex flex-column align-items-center justify-content-between">
                     @if($producto->imagen)
-                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" style="width: 150px; height: auto;">
+                        <!-- Imagen centrada -->
+                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" style="width: 150px; height: 150px; object-fit: cover;">
                     @else
                         <p>Sin imagen</p>
                     @endif
-                                    <h5 class="card-title text-primary"><strong>{{ $producto->nombre }}</strong></h5>
-                    <p class="card-text"><strong>Descripción:</strong> {{ $producto->descripcion }}</p>
-                    <p class="card-text"><strong>Precio:</strong> ${{ number_format($producto->precio, 2) }}</p>
-                    <p class="card-text"><strong>Cantidad Disponible:</strong> {{ $producto->cantidad_disponible }}</p>
+                    <!-- Nombre del producto centrado -->
+                    <h5 class="card-title text-primary"><strong>{{ $producto->nombre }}</strong></h5>
                     
-                    <div class="d-flex align-items-center mt-3">
+                    <!-- Descripción, Precio y Cantidad no centrados, alineados a la izquierda -->
+                    <div class="text-start w-100">
+                        <p class="card-text"><strong>Descripción:</strong> {{ $producto->descripcion }}</p>
+                        <p class="card-text"><strong>Precio:</strong> ${{ number_format($producto->precio, 2) }}</p>
+                        <p class="card-text"><strong>Cantidad Disponible:</strong> {{ $producto->cantidad_disponible }}</p>
+                    </div>
+
+                    <!-- Control de cantidad y botones centrados -->
+                    <div class="d-flex justify-content-center align-items-center mt-3">
                         <button class="btn btn-outline-secondary btn-sm me-2" onclick="decrementarCantidad({{ $producto->id_producto }})">-</button>
                         <input type="number" id="cantidad_{{ $producto->id_producto }}" 
                                class="form-control text-center" 
@@ -29,7 +36,8 @@
                         <button class="btn btn-outline-secondary btn-sm ms-2" onclick="incrementarCantidad({{ $producto->id_producto }})">+</button>
                     </div>
 
-                    <div class="d-flex mt-3">
+                    <div class="d-flex justify-content-center mt-3">
+                        <!-- Botón para agregar al carrito -->
                         <button class="btn btn-primary me-2" onclick="agregarAlCarrito({{ $producto->id_producto }}, '{{ $producto->nombre }}', {{ $producto->precio }}, {{ $producto->cantidad_disponible }})">
                             <i class="fas fa-shopping-cart me-2"></i>Agregar al Carrito
                         </button>
@@ -84,6 +92,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
     let carrito = [];

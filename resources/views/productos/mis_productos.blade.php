@@ -30,8 +30,8 @@
                 @foreach ($productos as $producto)
                     <tr>
                         <td>
-                        @if($producto->imagen)
-                                <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" style="width: 150px; height: auto;">
+                            @if($producto->imagen)
+                                <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" style="width: 150px; height: 150px; object-fit: cover;">
                             @else
                                 <p>Sin imagen</p>
                             @endif
